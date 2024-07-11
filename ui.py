@@ -4,7 +4,7 @@ from quizz_brain import QuizzBrain
 THEME = "#375362"
 FONT = ("Ariel", 18, "normal")
 
-
+WAIT_TIME = 500
 
 
 class QuizzInterface():
@@ -39,15 +39,21 @@ class QuizzInterface():
         self.window.mainloop()
 
     def left_function(self):
-        self.quizz_brain.check_answer("False")
-        self.update_score(self.quizz_brain.score)
-        self.update_question(f"{self.quizz_brain.next_question()}")
+        if self.quizz_brain.still_have_question():
+            result = self.quizz_brain.check_answer("True")
+            self.right_wrong_feedback(result)
+            self.update_score(self.quizz_brain.score)
+            self.window.after(WAIT_TIME, self.update_question, self.quizz_brain.next_question())
+            # self.update_question(f"{self.quizz_brain.next_question()}")
 
 
     def right_function(self):
-        self.quizz_brain.check_answer("True")
-        self.update_score(self.quizz_brain.score)
-        self.update_question(f"{self.quizz_brain.next_question()}")
+        if self.quizz_brain.still_have_question():
+            result = self.quizz_brain.check_answer("True")
+            self.right_wrong_feedback(result)
+            self.update_score(self.quizz_brain.score)
+            self.window.after(WAIT_TIME, self.update_question, self.quizz_brain.next_question())
+            # self.update_question(f"{self.quizz_brain.next_question()}")
 
     def update_question(self, new_question):
         self.question_text = new_question
@@ -55,6 +61,22 @@ class QuizzInterface():
 
     def update_score(self, score):
         self.score_label.config(text=f"score: {score}/{len(self.quizz_brain.question_list)}")
+
+
+    def blink_screen(self, color):
+        self.canvas.config(background=color)
+
+
+    def right_wrong_feedback(self, result:bool):
+        if result:
+            self.blink_screen("green")
+            self.window.after(WAIT_TIME, self.blink_screen, "white")
+
+        else:
+            self.blink_screen("red")
+            self.window.after(WAIT_TIME, self.blink_screen, "white")
+
+
 
 # quizz_interface = QuizzInterface()
 # quizz_interface.window.mainloop()
